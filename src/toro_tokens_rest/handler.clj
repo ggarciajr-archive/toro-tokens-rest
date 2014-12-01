@@ -24,7 +24,7 @@
      :body {:error "Invalid Token"}}))
 
 (defn create-token []
-  (.replace (str (java.util.UUID/randomUUID)) "-" ""))
+  (clojure.string/replace (str (java.util.UUID/randomUUID)) "-" ""))
 
 (defn increment-usage-time [token]
   (str "incremented token " token))
