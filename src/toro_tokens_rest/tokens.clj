@@ -1,8 +1,7 @@
 (ns toro-tokens-rest.tokens
   (:import (java.util UUID))
   (require [clojure.string :as clj-str]
-           [clj-time.core :as t]
-           [clj-time.format :as f]))
+           [clj-time.core :as t]))
 
 (defn create-token
   "Creates a 32 chars long token.
