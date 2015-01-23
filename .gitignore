@@ -10,3 +10,9 @@ pom.xml.asc
 /.nrepl-port
 .idea/
 *.iml
+*.log
+*.sst
+CURRENT
+LOCK
+LOG*
+MANIFEST*

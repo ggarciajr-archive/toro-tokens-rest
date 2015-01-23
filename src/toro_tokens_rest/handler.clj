@@ -8,7 +8,6 @@
             [toro-tokens-rest.tokens :as tkns]))
 
 (defn get-token [token {body :body}]
-  (println (body :api-key))
   (if (tkns/valid? token)
     {:status 200
      :headers {"Content-Type" "application/json; charset=utf-8"}

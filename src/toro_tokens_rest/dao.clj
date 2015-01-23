@@ -1,10 +1,11 @@
 (ns toro-tokens-rest.dao
   (:require [clj-leveldb :as l]
             [byte-streams :as bs]
-            [clj-time.format :as f]))
+            [clj-time.format :as f]
+            [environ.core :as environ]))
 
-(def db (l/create-db
-          "/tmp/leveldb"
+(def  db (l/create-db
+          (environ/env :database-path)
           {:key-decoder bs/to-string
            :val-decoder bs/to-string}))
 
@@ -17,7 +18,6 @@
 (defn ^:private dt-parser
   "Parse a string and return a org.joda.time.DateTime instance."
   [dt]
-  (println (type (f/parse (dt-fmter) dt)))
   (f/parse (dt-fmter) dt))
 
 (defn ^:private dt-unparser
