@@ -30,7 +30,7 @@
 (defn ^:private tkn-serializer
   "Returns a string representation of the token 'object'."
   [tkn]
-  (pr-str {:token (:token tkn)
+  (pr-str {:token-id (:token-id tkn)
            :expiration-date (dt-unparser (:expiration-date tkn))
            :remaining-usages (:remaining-usages tkn)}))
 
@@ -38,7 +38,7 @@
   "Uses a string representation of a token to create a token 'object'."
   [tkn]
   (let [new-tkn (read-string tkn)]
-    {:token (:token new-tkn)
+    {:token-id (:token-id new-tkn)
      :expiration-date (dt-parser (:expiration-date new-tkn))
      :remaining-usages (:remaining-usages new-tkn)}))
 
@@ -46,7 +46,7 @@
   "Save the string representation of a token in LevelDB."
   [token]
   (l/put db
-         (:token token)
+         (:token-id token)
          (tkn-serializer token)))
 
 (defn get!
@@ -61,7 +61,7 @@
 (defn del!
   "Deletes a token from the LevelDB"
   [token]
-  (l/delete db (:token token)))
+  (l/delete db (:token-id token)))
 
 (defn find-by
   "Look up LevelDB for tokens matching the given predicate."
@@ -72,7 +72,7 @@
   "Insert or update tokens data in LevelDB. Saves the token if the token is not
   in LevelDB, update otherwise."
   [token]
-  (if (nil? (get db (:token token)))
+  (if (nil? (get db (:token-id token)))
     (save! token)
     (do
       (del! token)
