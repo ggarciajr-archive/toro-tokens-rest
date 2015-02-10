@@ -8,14 +8,18 @@
                  [clj-time "0.9.0-beta1"]
                  [factual/clj-leveldb "0.1.1"]
                  [byte-streams "0.1.13"]
-                 [environ "1.0.0"]]
+                 [environ "1.0.0"]
+                 [com.stuartsierra/component "0.2.2"]
+                 [ring/ring-core "1.3.2"]
+                 [ring/ring-jetty-adapter "1.3.2"]]
   :plugins [[lein-ring "0.8.11"]
             [lein-midje "3.1.3"]
             [lein-environ "1.0.0"]]
-  :ring {:handler toro-tokens-rest.handler/app}
+  :main ^:skip-aot toro-tokens-rest.main
   :profiles
   {:dev {:dependencies [[javax.servlet/servlet-api "2.5"]
                         [ring-mock "0.1.5"]
                         [midje "1.6.3"]
                         [lein-environ "1.0.0"]]
-         :env {:database-path "/tmp/dev-leveldb"}}})
+         :env {:database-path "/tmp/dev-leveldb"
+               :jetty-port 3000}}})

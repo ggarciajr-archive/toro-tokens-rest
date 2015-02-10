@@ -1,40 +1,33 @@
 (ns toro-tokens-rest.dao
   (:require [clj-leveldb :as l]
-            [byte-streams :as bs]
-            [clj-time.format :as f]
-            [environ.core :as environ]))
+             [clj-time.format :as f]))
 
-(def  db (l/create-db
-          (environ/env :database-path)
-          {:key-decoder bs/to-string
-           :val-decoder bs/to-string}))
-
-(defn ^:private dt-fmter
+(defn- dt-fmter
   "Generates a formatter to be used by the parse/unparse functions.
   The date-time will be formatted to the following pattern
   yyyy-MM-dd'T'HH:mm:ss.SSSZZ"
   [] (f/formatters :date-time))
 
-(defn ^:private dt-parser
+(defn- dt-parser
   "Parse a string and return a org.joda.time.DateTime instance."
   [dt]
   (f/parse (dt-fmter) dt))
 
-(defn ^:private dt-unparser
+(defn- dt-unparser
   "Returns the string representation,
   according to the defined formatter, of a given
   org.joda.time.DateTime instance."
   [dt]
   (f/unparse (dt-fmter) dt))
 
-(defn ^:private tkn-serializer
+(defn- tkn-serializer
   "Returns a string representation of the token 'object'."
   [tkn]
   (pr-str {:token-id (:token-id tkn)
            :expiration-date (dt-unparser (:expiration-date tkn))
            :remaining-usages (:remaining-usages tkn)}))
 
-(defn ^:private tkn-deserializer
+(defn- tkn-deserializer
   "Uses a string representation of a token to create a token 'object'."
   [tkn]
   (let [new-tkn (read-string tkn)]
@@ -44,36 +37,36 @@
 
 (defn save!
   "Save the string representation of a token in LevelDB."
-  [token]
-  (l/put db
+  [database token]
+  (l/put (:db database)
          (:token-id token)
          (tkn-serializer token)))
 
 (defn get!
   "Look up LevelDB for the given token key.
   Returns token if it finds the token, nil otherwise."
-  [token]
-  (let [fnd-tkn (l/get db token)]
+  [database token]
+  (let [fnd-tkn (l/get (:db database) token)]
     (if (nil? fnd-tkn)
       nil
       (tkn-deserializer fnd-tkn))))
 
 (defn del!
   "Deletes a token from the LevelDB"
-  [token]
-  (l/delete db (:token-id token)))
+  [database token]
+  (l/delete (:db database) (:token-id token)))
 
 (defn find-by
   "Look up LevelDB for tokens matching the given predicate."
-  [predicate]
-  (filter predicate (map #(tkn-deserializer (nth % 1)) (lazy-seq (l/iterator db)))))
+  [database predicate]
+  (filter predicate (map #(tkn-deserializer (nth % 1)) (lazy-seq (l/iterator (:db database))))))
 
 (defn update!
   "Insert or update tokens data in LevelDB. Saves the token if the token is not
   in LevelDB, update otherwise."
-  [token]
-  (if (nil? (get db (:token-id token)))
-    (save! token)
+  [database token]
+  (if (nil? (get (:db database) (:token-id token)))
+    (save! database token)
     (do
-      (del! token)
-      (save! token))))
+      (del! database token)
+      (save! database token))))
